@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" href="index.css" />
+    <title>Yandex Home</title>
+</head>
+<body>
+    <div class="page-container">
+        <div class="header">
+            <img src="assets/Яндекс Дом@1x.png" class="menu-logo">
+            <input class="menu-button" type="checkbox" id="menu-button"/>
+            <label class="menu-icon" for="menu-button"></label>
+            <ul class="menu-nav">
+                <li><a href="#" class="menu-nav-item selected">События</a></li>
+                <li><a href="#" class="menu-nav-item">Сводка</a></li>
+                <li><a href="#" class="menu-nav-item">Устройства</a></li>
+                <li><a href="#" class="menu-nav-item">Сценарии</a></li>
+            </ul>
+        </div>
+        <hr class="page-separator">
+        <div class="layout-area">
+            <div class="title">Лента событий</div>
+        </div>
+        <hr class="page-separator">
+        <div class="footer">
+            <div class="footer-nav">
+                <a href="#" class="footer-nav-item">Помощь</a>
+                <a href="#" class="footer-nav-item">Обратная связь</a>
+                <a href="#" class="footer-nav-item">Разработчикам</a>
+                <a href="#" class="footer-nav-item">Условия использования</a>
+                <a href="https://docviewer.yandex.ru/?url=ya-wiki%3A//wiki-api.yandex.ru/shri-2018-ii/homework/adaptivnaja-vjorstka/license.pdf"
+                   class="footer-nav-item">Авторские права
+                </a>
+            </div>
+            <div class="footer-copyright">© 2001–2017  ООО «Яндекс»</div>
+        </div>
+        <template>
+            <div class="tile {{size}} {{type}}">
+                <div class="actions">
+                    <button class="close"></button>
+                    <button class="next"></button>
+                </div>
+                <div class="tile-header">
+                    <div class="title">
+                        <img srcset="assets/{{icon}}.svg" class="icon">
+                        <div class="text">{{title}}</div>
+                    </div>
+                    <div class="main-info">
+                        <div>{{source}}</div>
+                        <div>{{time}}</div>
+                    </div>
+                </div>
+                <div class="description">{{description}}</div>
+                <div class="data">{{data}}</div>
+            </div>
+        </template>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>

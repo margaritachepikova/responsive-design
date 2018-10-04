@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="636px" height="294px" viewBox="0 0 636 294" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.2 (57519) - http://www.bohemiancoding.com/sketch -->
+    <title>Richdata</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="636" height="314.071017" rx="16"></rect>
+        <rect id="path-3" x="0" y="1.15467286" width="642" height="434.156994"></rect>
+    </defs>
+    <g id="Events" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop" transform="translate(-192.000000, -512.000000)">
+            <g id="Card-/-Large-/-With-data" transform="translate(172.000000, 273.000000)">
+                <g id="Richdata-Graph" transform="translate(20.000000, 218.928983)">
+                    <g id="Richdata">
+                        <g id="Line-graph">
+                            <mask id="mask-2" fill="white">
+                                <use xlink:href="#path-1"></use>
+                            </mask>
+                            <use id="Mask" fill-opacity="0" fill="#D8D8D8" xlink:href="#path-1"></use>
+                            <g mask="url(#mask-2)">
+                                <g transform="translate(-5.000000, -112.003267)">
+                                    <mask id="mask-4" fill="white">
+                                        <use xlink:href="#path-3"></use>
+                                    </mask>
+                                    <g id="Rectangle-1" stroke="none" fill="none"></g>
+                                    <path d="M-36,352.522369 C-36,352.522369 79.3139242,226.458692 130.564557,232.285164 C181.81519,238.111637 357.074052,347.755256 445.389873,352.522371 C533.705696,357.289483 687,358.348843 687,358.348843 L681.966456,447.864646 L-33.2544304,452.63176 L-36,352.522369 Z" id="Path-19" stroke="none" fill="#F0F0F0" fill-rule="evenodd" style="mix-blend-mode: multiply;" mask="url(#mask-4)" transform="translate(325.500000, 342.360502) scale(-1, 1) translate(-325.500000, -342.360502) "></path>
+                                    <path d="M-30,362.73164 C-30,362.73164 119.182917,140.390781 199.723391,132.961733 C280.263862,125.532683 397.41364,357.955818 485.733588,362.731637 C574.053537,367.507453 684.00821,242.918201 684.00821,242.918201 L688,458.247998 L-27.2543021,463.023816 L-30,362.73164 Z" id="Path-19-copy" stroke="none" fill="#F0F0F0" fill-rule="evenodd" style="mix-blend-mode: multiply;" mask="url(#mask-4)"></path>
+                                    <path d="M-143,369.606698 C-143,369.606698 27.6325114,139.715409 138.235182,139.715416 C248.837852,139.715422 309.332118,361.001361 367.534932,365.304031 C397.76685,367.538939 559.558394,208.06669 613.636601,208.066697 C667.714807,208.066706 731.113114,249.729968 731.113114,249.729968 L736,465.173512 L-139.638623,469.951853 L-143,369.606698 Z" id="Path-19-copy-2" stroke="none" fill="#F0F0F0" fill-rule="evenodd" style="mix-blend-mode: multiply;" mask="url(#mask-4)"></path>
+                                    <path d="M-16,354.688679 C-16,354.688679 303.380051,228.28197 384.026954,220.877395 C464.673854,213.472818 448.177899,331.267316 536.614555,336.027402 C625.051213,340.787485 785.428571,237.802145 785.428571,237.802145 L834,445.659201 L-16,451.477087 L-16,354.688679 Z" id="Path-19-copy" stroke="none" fill="#F0F0F0" fill-rule="evenodd" style="mix-blend-mode: multiply;" mask="url(#mask-4)"></path>
+                                    <polyline id="Rectangle-1" stroke="#576269" stroke-width="1" fill="none" points="1 0 1 434.156994 642 434.156994"></polyline>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
