@@ -47,6 +47,7 @@ body {
 }
 
 .menu-nav-item {
+    cursor: pointer;
     font-size: 16px;
     font-family: Arial-BoldMT, sans-serif;
     color: #858585;
@@ -207,7 +208,8 @@ body {
     margin-right: 18px;
 }
 
-.action-buttons button {
+.action-buttons button,
+.video-page button {
     width: 132px;
     height: 54px;
     border-radius: 8px;
@@ -253,7 +255,8 @@ body {
     width: 100%;
 }
 
-.player .slider {
+.player .slider,
+.video-controls .slider {
     -webkit-appearance: none;
     border: 1px solid #979797;
     margin-right: 16px;
@@ -311,6 +314,7 @@ body {
     color: #D8D8D8;
 }
 
+.video-controls .slider::-webkit-slider-thumb,
 .player .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -321,6 +325,7 @@ body {
     cursor: pointer;
 }
 
+.video-controls .slider::-moz-range-thumb,
 .player .slider::-moz-range-thumb {
     width: 12px;
     height: 20px;
@@ -400,6 +405,164 @@ body {
     text-decoration: none;
 }
 
+.video-page {
+    display: none;
+    width: 1055px;
+    height: 100vh;
+    top: 0;
+    z-index: 50;
+    background-color: #fff;
+    margin-top: 20px;
+    box-sizing: border-box;
+    align-self: center;
+}
+
+.video-page .text {
+    font-size: 36px;
+    color: #333333;
+}
+
+.video-page button {
+    width: 150px;
+    display: none;
+}
+
+#full-screen-toggle,
+#video-page-toggle,
+#video-page-toggle:checked ~ .layout-area {
+    display: none;
+}
+
+#video-page-toggle:checked ~ .video-page {
+    display: block;
+}
+
+.video-container {
+    height: 50%;
+    width: 50%;
+    margin: auto;
+    position: absolute;
+    z-index: 50;
+    transition: z-index .3s, width .3s linear, height .3s linear;
+}
+
+.video {
+    width: 100%;
+}
+
+.video-checked {
+    z-index: 100;
+    margin: 0;
+    height: calc(100vh - 105px);
+    background: #000;
+}
+
+.video-page .wrapper {
+    position: relative;
+    height: calc(100vh - 105px);
+    background-color: #000;
+}
+
+#container-1,
+#container-2,
+#container-3,
+#container-4 {
+    display: flex;
+    justify-content: center;
+}
+
+#container-1 {
+    top: 0;
+    left: 0;
+}
+
+#container-2 {
+    top: 0;
+    right: 0;
+}
+
+#container-3 {
+    bottom: 0;
+    left: 0;
+}
+
+#container-4 {
+    bottom: 0;
+    right: 0;
+}
+
+#container-1.video-checked {
+    transform-origin: left top;
+    width: 100%;
+}
+
+#container-2.video-checked {
+    transform-origin: right top;
+    width: 100%;
+}
+
+#container-3.video-checked {
+    transform-origin: left bottom;
+    width: 100%;
+}
+
+#container-4.video-checked {
+    transform-origin: right bottom;
+    width: 100%;
+}
+
+#full-screen-toggle:checked ~ .video-page button {
+    display: block;
+}
+
+.video-controls {
+    display: none;
+}
+
+.video-page-footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 90px;
+}
+
+.video-controls.show {
+    display: flex;
+}
+
+.video-controls .slider-container {
+    width: unset;
+    margin: 10px 10px 10px 0;
+}
+
+.video-controls .slider-container > div,
+.music-meter-title {
+    float: left;
+    margin-right: 15px;
+    color: #000;
+    font-size: 18px;
+}
+
+.video-controls input[type=range] {
+    width: 200px;
+}
+
+.music-meter-container {
+    display: flex;
+    height: 100px;
+}
+
+.music-meter-title {
+    align-self: center;
+}
+
+.music-div {
+    width: 50px;
+    background-color: #DB5341;
+    align-self: flex-end;
+}
+
 @media screen and (min-width: 1890px) {
     .layout-area {
         grid-template-columns: repeat(10, 170px);
@@ -446,6 +609,35 @@ body {
     .tile.m {
         grid-column: span 4;
     }
+
+    .video-page {
+        width: 950px;
+    }
+
+    .video-controls input[type=range] {
+        width: 150px;
+    }
+}
+
+@media screen and (max-width: 1050px) {
+    .video-page {
+        width: 850px;
+    }
+
+    .video-controls input[type=range] {
+        width: 100px;
+    }
+
+    .video-page button {
+        font-size: 16px;
+        width: 130px;
+    }
+}
+
+@media screen and (max-width: 950px) {
+    .video-page {
+        width: 800px;
+    }
 }
 
 @media screen and (max-width: 885px) {
@@ -455,6 +647,20 @@ body {
 
     .layout-area .title {
         grid-column: span 3;
+    }
+
+    .video-page {
+        width: 700px;
+    }
+
+    .video-controls .slider-container > div,
+    .music-meter-title {
+        font-size: 14px;
+    }
+
+    .video-page button {
+        font-size: 14px;
+        width: 120px;
     }
 }
 
@@ -475,8 +681,8 @@ body {
 
     .layout-area {
         grid-template-columns: repeat(1, 100%);
-        grid-auto-columns: minmax(auto, auto);
-        grid-auto-rows: minmax(20px, auto);
+        grid-auto-columns: minmax(100%, 100%);
+        grid-auto-rows: minmax(auto, auto);
         margin-bottom: 20px;
         margin-top: 15px;
     }
@@ -486,7 +692,7 @@ body {
         grid-row: auto / span 3;
     }
 
-    .tile.m {
+    .tile.m {grid-auto-flow: dense;
         grid-column: span 1;
         grid-row: auto / span 2;
     }
@@ -532,13 +738,12 @@ body {
     .menu-nav {
         display: none;
         width: 100%;
-        height: 140px;
+        height: 170px;
         box-shadow: 0 10px 10px 0 rgba(197, 186, 186, 0.50);
     }
 
     .menu-button:checked ~ .menu-nav {
-        clear: both;
-        margin: 0 0 0 -25px;
+        left: 0;
         padding: 0;
         top: 65px;
         position: absolute;
@@ -560,7 +765,7 @@ body {
 
     .menu-nav-item {
         font-size: 18px;
-        padding-left: 20px;
+        padding-left: 25px;
     }
 
     .tile.s .main-info {
@@ -605,6 +810,95 @@ body {
 
     .page-separator,
     .footer {
-       display: none;
+        display: none;
+    }
+
+    .video-page {
+        display: none;
+        width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .video-container {
+        position: relative;
+        transition: unset;
+    }
+
+    #container-1,
+    #container-2,
+    #container-3,
+    #container-4 {
+        display: block;
+        width: 100%;
+    }
+
+    .video-page .wrapper {
+        height: auto;
+    }
+
+    #full-screen-toggle:checked ~ div.wrapper {
+        overflow: hidden;
+        height: calc(100vw - 40px);
+        background-color: #fff;
+    }
+
+    #container-1.video-checked,
+    #container-2.video-checked,
+    #container-3.video-checked,
+    #container-4.video-checked {
+        height: 100%;
+        width: 100%;
+        display: flex;
+    }
+
+    #full-screen-toggle:checked ~ div #container-1.video-container:not(.video-checked),
+    #full-screen-toggle:checked ~ div #container-2.video-container:not(.video-checked),
+    #full-screen-toggle:checked ~ div #container-3.video-container:not(.video-checked),
+    #full-screen-toggle:checked ~ div #container-4.video-container:not(.video-checked) {
+        display: none;
+    }
+
+    .video-page-footer {
+        display: none;
+    }
+
+    #full-screen-toggle:checked ~ .video-page-footer {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        height: auto;
+    }
+
+    .video-controls.show {
+        width: 100%;
+        float: left;
+        display: block;
+    }
+
+    .video-controls .slider-container {
+        margin: 30px 0;
+    }
+
+    .video-controls .slider-container > div {
+        width: 100px;
+    }
+
+    .video-controls input[type=range] {
+        width: 200px;
+    }
+
+    .music-meter-container {
+        padding: 10px;
+        border: 1px solid #000;
+        margin-bottom: 20px;
+    }
+
+    .music-meter-title {
+        margin-right: 20px;
+    }
+
+    .action-buttons button {
+        width: 110px;
     }
 }
