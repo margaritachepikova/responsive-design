@@ -1,10 +1,9 @@
 var loadJSON = function (file, callback) {
     var xobj = new XMLHttpRequest();
-    xobj.overrideMimeType('application/json');
-    xobj.open('GET', file, true);
+    xobj.open('GET', '/api/events', true);
     xobj.onreadystatechange = function () {
         if (xobj.readyState === 4 && parseInt(xobj.status, 10) === 200) {
-            callback(xobj.responseText);
+            callback(xobj.response);
         }
     };
     xobj.send();
