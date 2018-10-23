@@ -8,56 +8,93 @@
     <title>Yandex Home</title>
 </head>
 <body>
-    <div class="page-container">
-        <div class="header">
-            <img src="assets/Яндекс Дом@1x.png" class="menu-logo">
-            <input class="menu-button" type="checkbox" id="menu-button"/>
-            <label class="menu-icon" for="menu-button"></label>
-            <ul class="menu-nav">
-                <li><a href="#" class="menu-nav-item selected">События</a></li>
-                <li><a href="#" class="menu-nav-item">Сводка</a></li>
-                <li><a href="#" class="menu-nav-item">Устройства</a></li>
-                <li><a href="#" class="menu-nav-item">Сценарии</a></li>
-            </ul>
-        </div>
-        <hr class="page-separator">
-        <div class="layout-area">
-            <div class="title">Лента событий</div>
-        </div>
-        <hr class="page-separator">
-        <div class="footer">
-            <div class="footer-nav">
-                <a href="#" class="footer-nav-item">Помощь</a>
-                <a href="#" class="footer-nav-item">Обратная связь</a>
-                <a href="#" class="footer-nav-item">Разработчикам</a>
-                <a href="#" class="footer-nav-item">Условия использования</a>
-                <a href="https://docviewer.yandex.ru/?url=ya-wiki%3A//wiki-api.yandex.ru/shri-2018-ii/homework/adaptivnaja-vjorstka/license.pdf"
-                   class="footer-nav-item">Авторские права
-                </a>
-            </div>
-            <div class="footer-copyright">© 2001–2017  ООО «Яндекс»</div>
-        </div>
-        <template>
-            <div class="tile {{size}} {{type}}">
-                <div class="actions">
-                    <button class="close"></button>
-                    <button class="next"></button>
-                </div>
-                <div class="tile-header">
-                    <div class="title">
-                        <img srcset="assets/{{icon}}.svg" class="icon">
-                        <div class="text">{{title}}</div>
-                    </div>
-                    <div class="main-info">
-                        <div>{{source}}</div>
-                        <div>{{time}}</div>
-                    </div>
-                </div>
-                <div class="description">{{description}}</div>
-                <div class="data">{{data}}</div>
-            </div>
-        </template>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+<div class="page-container">
+    <div class="header">
+        <img src="assets/Яндекс Дом@1x.png" class="menu-logo">
+        <input class="menu-button" type="checkbox" id="menu-button"/>
+        <label class="menu-icon" for="menu-button"></label>
+        <ul class="menu-nav">
+            <li><a href="#" id="events-page-link" class="menu-nav-item selected">События</a></li>
+            <li><a href="#" class="menu-nav-item">Сводка</a></li>
+            <li><a href="#" class="menu-nav-item">Устройства</a></li>
+            <li><a href="#" class="menu-nav-item">Сценарии</a></li>
+            <li><a href="#" id="video-page-link" class="menu-nav-item">Видеонаблюдение</a></li>
+        </ul>
     </div>
-    <script src="index.js"></script>
+    <hr class="page-separator">
+    <input id="video-page-toggle" type="checkbox">
+    <div class="layout-area">
+        <div class="title">Лента событий</div>
+    </div>
+    <div class="video-page">
+        <input id="full-screen-toggle" type="checkbox">
+        <div class="wrapper">
+            <div id="container-1" class="video-container">
+                <video id="video-1" class="video" muted autoplay playsinline></video>
+            </div>
+            <div id="container-2" class="video-container">
+                <video id="video-2" class="video" muted autoplay playsinline></video>
+            </div>
+            <div id="container-3" class="video-container">
+                <video id="video-3" class="video" muted autoplay playsinline></video>
+            </div>
+            <div id="container-4" class="video-container">
+                <video id="video-4" class="video" muted autoplay playsinline></video>
+            </div>
+        </div>
+        <div class="video-page-footer">
+            <div class="video-controls">
+                <div class="slider-container">
+                    <div>Brightness</div>
+                    <input type="range" min="0.5" max="1.5" value="1" step="0.1" class="slider brightness" />
+                </div>
+                <div class="slider-container">
+                    <div>Contrast</div>
+                    <input type="range" min="0.5" max="1.5" value="1" step="0.1" class="slider contrast" />
+                </div>
+                <div class="music-meter-container">
+                    <div class="music-meter-title">Volume meter</div>
+                    <div class="music-div"></div>
+                </div>
+            </div>
+            <button id="back">Все камеры</button>
+        </div>
+    </div>
+    <hr class="page-separator">
+    <div class="footer">
+        <div class="footer-nav">
+            <a href="#" class="footer-nav-item">Помощь</a>
+            <a href="#" class="footer-nav-item">Обратная связь</a>
+            <a href="#" class="footer-nav-item">Разработчикам</a>
+            <a href="#" class="footer-nav-item">Условия использования</a>
+            <a href="https://docviewer.yandex.ru/?url=ya-wiki%3A//wiki-api.yandex.ru/shri-2018-ii/homework/adaptivnaja-vjorstka/license.pdf"
+               class="footer-nav-item">Авторские права
+            </a>
+        </div>
+        <div class="footer-copyright">© 2001–2017  ООО «Яндекс»</div>
+    </div>
+    <template>
+        <div class="tile {{size}} {{type}}">
+            <div class="actions">
+                <button class="close"></button>
+                <button class="next"></button>
+            </div>
+            <div class="tile-header">
+                <div class="title">
+                    <img srcset="assets/{{icon}}.svg" class="icon">
+                    <div class="text">{{title}}</div>
+                </div>
+                <div class="main-info">
+                    <div>{{source}}</div>
+                    <div>{{time}}</div>
+                </div>
+            </div>
+            <div class="description">{{description}}</div>
+            <div class="data">{{data}}</div>
+        </div>
+    </template>
+</div>
+<script src="index.js"></script>
 </body>
 </html>
