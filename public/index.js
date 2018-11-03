@@ -1,7 +1,10 @@
-var loadJSON = function (file, callback) {
-    var xobj = new XMLHttpRequest();
+import Dispatcher from './lib/Dispatcher.js';
+import Store from './lib/Store.js';
+
+const loadJSON = (file, callback) => {
+    const xobj = new XMLHttpRequest();
     xobj.open('GET', '/api/events', true);
-    xobj.onreadystatechange = function () {
+    xobj.onreadystatechange = () => {
         if (xobj.readyState === 4 && parseInt(xobj.status, 10) === 200) {
             callback(xobj.response);
         }
@@ -9,8 +12,8 @@ var loadJSON = function (file, callback) {
     xobj.send();
 };
 
-var getDataValue = function (data, type) {
-    var value;
+const getDataValue = (data, type) => {
+    let value;
     if (data) {
         if (data.type === 'graph') {
             value = '<img src="assets/Richdata@1,5x.svg" class="image">';
@@ -18,14 +21,14 @@ var getDataValue = function (data, type) {
             value = '<img src="assets/RichdataGraphAlternative.png" class="image">';
         } else if (data.buttons) {
             value = '<div class="action-buttons">';
-            data.buttons.forEach(function (button) {
+            data.buttons.forEach(button => {
                 value += '<button type="button">' + button +'</button>';
             });
             value += '</div>';
         } else if (type === 'thermal') {
-            var THERMAL_PROPERTITES = { temperature: 'Температура', humidity: 'Влажность'};
+            const THERMAL_PROPERTITES = { temperature: 'Температура', humidity: 'Влажность'};
             value = '<div class="text">';
-            for (var key in data) {
+            for (let key in data) {
                 value += '<div>' + THERMAL_PROPERTITES[key] + ': <span>' + data[key] + '</span></div>';
             }
             value += '</div>';
@@ -53,10 +56,10 @@ var getDataValue = function (data, type) {
     return value;
 };
 
-var PROPERTIES = ['type', 'title', 'source', 'time', 'description', 'icon', 'data', 'size'];
-var replaceWithData = function (dataObject, templateHtml) {
-    var htmlSnippet, regex, value;
-    PROPERTIES.forEach(function (property) {
+const PROPERTIES = ['type', 'title', 'source', 'time', 'description', 'icon', 'data', 'size'];
+const replaceWithData = (dataObject, templateHtml) => {
+    let htmlSnippet, regex, value;
+    PROPERTIES.forEach(property => {
         regex = new RegExp('{{' + property + '}}', 'ig');
         if (property === 'icon' && dataObject.type === 'critical') {
             value = dataObject[property] + '-white';
@@ -71,71 +74,69 @@ var replaceWithData = function (dataObject, templateHtml) {
     return htmlSnippet;
 };
 
-var selectedVideo = null;
-var selectedVideoContainer = null;
+let selectedVideo = null;
+let selectedVideoContainer = null;
 var videoIds = ['video-1', 'video-2', 'video-3', 'video-4'];
-var videos = videoIds.map(function (videoId) {
-    return document.getElementById(videoId);
-});
+var videos = videoIds.map(videoId => document.getElementById(videoId));
 var musicDiv = document.getElementsByClassName('music-div')[0];
-var onVideoPageLoad = function () {
-    var AudioContext = window.AudioContext || window.webkitAudioContext;
-    var context = new AudioContext();
-    var node = context.createScriptProcessor(2048, 1, 1);
-    var analyser = context.createAnalyser();
+const onVideoPageLoad = () => {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const context = new AudioContext();
+    const node = context.createScriptProcessor(2048, 1, 1);
+    const analyser = context.createAnalyser();
     analyser.fftSize = 512;
     analyser.smoothingTimeConstant = 0.3;
-    var bufferLength = analyser.frequencyBinCount;
-    var dataArray = new Uint8Array(bufferLength);
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
     analyser.connect(node);
     node.connect(context.destination);
 
-    var sources = [];
-    videos.forEach(function (video, index) {
+    const sources = [];
+    videos.forEach((video, index) => {
         sources[index] = context.createMediaElementSource(video);
         sources[index].connect(analyser);
         sources[index].connect(context.destination);
     });
 
-    node.onaudioprocess = function () {
+    node.onaudioprocess = () => {
         if (!selectedVideo) {
             return;
         }
         if (!selectedVideo.paused) {
             analyser.getByteFrequencyData(dataArray);
-            var sum = dataArray.reduce(function(a, b) {
+            const sum = dataArray.reduce((a, b) => {
                 return a + b;
             });
-            var avg = sum / dataArray.length;
+            const avg = sum / dataArray.length;
             musicDiv.style.height = avg * 1.3 + 'px';
         }
     };
 };
 
-var initVideo = function (video, url) {
+const initVideo = (video, url) => {
     if (Hls.isSupported()) {
-        var hls = new Hls();
+        const hls = new Hls();
         hls.loadSource(url);
         hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
             video.play();
         });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
         video.src = 'https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8';
-        video.addEventListener('loadedmetadata', function () {
+        video.addEventListener('loadedmetadata', () => {
             video.play();
         });
     }
 };
 
-var start = function () {
-    loadJSON('./events.json', function (response) {
-        var dataObjects =  JSON.parse(response).events;
-        var template = document.getElementsByTagName('template')[0];
-        var templateHtml = template.innerHTML;
-        var listHtml = '';
+var start = () => {
+    loadJSON('./events.json', (response) => {
+        const dataObjects =  JSON.parse(response).events;
+        const template = document.getElementsByTagName('template')[0];
+        const templateHtml = template.innerHTML;
+        let listHtml = '';
 
-        for (var i = 0; i < dataObjects.length; i++) {
+        for (let i = 0; i < dataObjects.length; i++) {
             listHtml += replaceWithData(dataObjects[i], templateHtml);
         }
 
@@ -159,15 +160,29 @@ var start = function () {
 
         onVideoPageLoad();
 
-        var pageLinks = {
+        const AppDispatcher = new Dispatcher();
+        const AppStore = new Store();
+
+        AppDispatcher.register(function (payload) {
+            switch(payload.eventName) {
+                case 'pageRedirect':
+                    const state = AppStore.getState();
+                    const pageName = payload.pageName;
+                    AppStore.setState({ ...state, pageName });
+                    break;
+            }
+        });
+
+        const PAGE_LINKS = {
             events: document.getElementById('events-page-link'),
             videos: document.getElementById('video-page-link')
         };
 
-        var selectedPage = pageLinks.events;
-        var videoPageToggle = document.getElementById('video-page-toggle');
+        let selectedPage = AppStore.state.pageName ? PAGE_LINKS[AppStore.state.pageName] : PAGE_LINKS.events;
+        selectedPage.classList.add('selected');
+        const videoPageToggle = document.getElementById('video-page-toggle');
 
-        var resetSelectedVideo = function () {
+        const resetSelectedVideo = () => {
             selectedVideo.muted = true;
             selectedVideo = null;
             selectedVideoContainer.classList.remove('video-checked');
@@ -175,59 +190,65 @@ var start = function () {
             videoControls.classList.remove('show');
         };
 
-        var menuButton = document.getElementsByClassName('menu-button')[0];
-        Object.keys(pageLinks).forEach(function (key) {
-            pageLinks[key].addEventListener('click', function () {
+        AppStore.bind('change', () => {
+            console.log('Page is changed');
+        });
+
+        Object.keys(PAGE_LINKS).forEach(key => {
+            PAGE_LINKS[key].addEventListener('click', () => {
+                AppDispatcher.dispatch({
+                    eventName: 'pageRedirect',
+                    pageName: key
+                });
+                AppStore.trigger('change');
                 videoPageToggle.checked = key === 'videos';
                 selectedPage.classList.remove('selected');
-                selectedPage = pageLinks[key];
-                pageLinks[key].classList.add('selected');
+                selectedPage = PAGE_LINKS[key];
+                PAGE_LINKS[key].classList.add('selected');
                 if (key === 'events' && selectedVideoContainer) {
                     resetSelectedVideo();
                 }
-                menuButton.checked = false;
             });
         });
 
-        var fullScreenToggle = document.getElementById('full-screen-toggle');
-        var backButton = document.getElementById('back');
-        backButton.addEventListener('click', function () {
+        const fullScreenToggle = document.getElementById('full-screen-toggle');
+        const backButton = document.getElementById('back');
+        backButton.addEventListener('click', () => {
             fullScreenToggle.checked = false;
             backButton.style.display = 'none';
             resetSelectedVideo();
         });
 
 
-        var brightnessSlider = document.querySelector('.slider.brightness');
-        var contrastSlider = document.querySelector('.slider.contrast');
+        const brightnessSlider = document.querySelector('.slider.brightness');
+        const contrastSlider = document.querySelector('.slider.contrast');
 
-        var getVideoProperties = function (styleFilter) {
-            var filterValues = styleFilter.split(/[\s()]+/);
+        const getVideoProperties = styleFilter => {
+            const filterValues = styleFilter.split(/[\s()]+/);
             filterValues.pop();
-            var videoProperties = {};
-            for (var i = 0; i < filterValues.length; i += 2) {
+            const videoProperties = {};
+            for (let i = 0; i < filterValues.length; i += 2) {
                 videoProperties[filterValues[i]] = filterValues[i + 1];
             }
             return videoProperties;
         };
 
-        var setRangeInputs = function (styleFilter) {
+        const setRangeInputs = styleFilter => {
             if (!styleFilter) {
                 brightnessSlider.value = 1;
                 contrastSlider.value = 1;
             } else {
-                var videoProperties = getVideoProperties(styleFilter);
+                const videoProperties = getVideoProperties(styleFilter);
                 brightnessSlider.value = videoProperties.brightness;
                 contrastSlider.value = videoProperties.contrast;
             }
         };
 
-        var videoContainers = document.getElementsByClassName('video-container');
-        var videoControls = document.getElementsByClassName('video-controls')[0];
-        [].forEach.call(videoContainers, function (videoContainer) {
-            videoContainer.addEventListener('click', function (event) {
+        const videoContainers = document.getElementsByClassName('video-container');
+        const videoControls = document.getElementsByClassName('video-controls')[0];
+        [].forEach.call(videoContainers, videoContainer => {
+            videoContainer.addEventListener('click', event => {
                 event.stopPropagation();
-                // event.preventDefault();
                 if (selectedVideoContainer) {
                     return;
                 }
@@ -242,16 +263,16 @@ var start = function () {
             });
         });
 
-        brightnessSlider.addEventListener('change', function () {
-            var checkedVideo = document.querySelector('.video-checked');
-            var videoProperties = getVideoProperties(checkedVideo.style.filter);
+        brightnessSlider.addEventListener('change', () => {
+            const checkedVideo = document.querySelector('.video-checked');
+            const videoProperties = getVideoProperties(checkedVideo.style.filter);
             checkedVideo.style.filter = 'brightness(' + event.target.value +')' +
                 (videoProperties.contrast ? ('contrast(' + videoProperties.contrast + ')') : '');
         });
 
-        contrastSlider.addEventListener('change', function () {
-            var checkedVideo = document.querySelector('.video-checked');
-            var videoProperties = getVideoProperties(checkedVideo.style.filter);
+        contrastSlider.addEventListener('change', () => {
+            const checkedVideo = document.querySelector('.video-checked');
+            const videoProperties = getVideoProperties(checkedVideo.style.filter);
             checkedVideo.style.filter = 'contrast(' + event.target.value +')' +
                 (videoProperties.brightness ? ('brightness(' + videoProperties.brightness + ')') : '');
         });
