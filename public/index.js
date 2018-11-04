@@ -1,15 +1,26 @@
 import Dispatcher from './lib/Dispatcher.js';
-import Store from './lib/Store.js';
+import  { AppStore } from './AppStore.js';
+import { ActionsList } from './ActionsList.js';
 
 const loadJSON = (file, callback) => {
-    const xobj = new XMLHttpRequest();
-    xobj.open('GET', '/api/events', true);
-    xobj.onreadystatechange = () => {
-        if (xobj.readyState === 4 && parseInt(xobj.status, 10) === 200) {
-            callback(xobj.response);
-        }
-    };
-    xobj.send();
+    return new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open('GET', '/api/events', true);
+        request.onreadystatechange = () => {
+            if (request.readyState !== 4) {
+                return;
+            }
+            if (request.status >= 200 && request.status < 300) {
+                resolve(request.response);
+            } else {
+                reject({
+                    status: request.status,
+                    statusText: request.statusText
+                });
+            }
+        };
+        request.send();
+    });
 };
 
 const getDataValue = (data, type) => {
@@ -129,154 +140,159 @@ const initVideo = (video, url) => {
     }
 };
 
-var start = () => {
-    loadJSON('./events.json', (response) => {
-        const dataObjects =  JSON.parse(response).events;
-        const template = document.getElementsByTagName('template')[0];
-        const templateHtml = template.innerHTML;
-        let listHtml = '';
+var start = async () => {
+    const response = await loadJSON('./events.json');
+    const dataObjects = JSON.parse(response).events;
+    const template = document.getElementsByTagName('template')[0];
+    const templateHtml = template.innerHTML;
+    let listHtml = '';
 
-        for (let i = 0; i < dataObjects.length; i++) {
-            listHtml += replaceWithData(dataObjects[i], templateHtml);
-        }
+    for (let i = 0; i < dataObjects.length; i++) {
+        listHtml += replaceWithData(dataObjects[i], templateHtml);
+    }
 
-        document.getElementsByClassName('layout-area')[0].innerHTML += listHtml;
+    document.getElementsByClassName('layout-area')[0].innerHTML += listHtml;
 
-        initVideo(
-            videos[0], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
-        );
+    initVideo(
+        videos[0], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
+    );
 
-        initVideo(
-            videos[1], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fcat%2Fmaster.m3u8'
-        );
+    initVideo(
+        videos[1], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fcat%2Fmaster.m3u8'
+    );
 
-        initVideo(
-            videos[2], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fdog%2Fmaster.m3u8'
-        );
+    initVideo(
+        videos[2], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fdog%2Fmaster.m3u8'
+    );
 
-        initVideo(
-            videos[3], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fhall%2Fmaster.m3u8'
-        );
+    initVideo(
+        videos[3], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fhall%2Fmaster.m3u8'
+    );
 
-        onVideoPageLoad();
+    onVideoPageLoad();
 
-        const AppDispatcher = new Dispatcher();
-        const AppStore = new Store();
+    const AppDispatcher = new Dispatcher();
 
-        AppDispatcher.register(function (payload) {
-            switch(payload.eventName) {
-                case 'pageRedirect':
-                    const state = AppStore.getState();
-                    const pageName = payload.pageName;
-                    AppStore.setState({ ...state, pageName });
-                    break;
-            }
-        });
+    AppDispatcher.register(payload => {
+        ActionsList[payload.eventName](payload);
+    });
 
-        const PAGE_LINKS = {
-            events: document.getElementById('events-page-link'),
-            videos: document.getElementById('video-page-link')
-        };
+    const PAGE_LINKS = {
+        events: document.getElementById('events-page-link'),
+        videos: document.getElementById('video-page-link')
+    };
 
-        let selectedPage = AppStore.state.pageName ? PAGE_LINKS[AppStore.state.pageName] : PAGE_LINKS.events;
-        selectedPage.classList.add('selected');
-        const videoPageToggle = document.getElementById('video-page-toggle');
+    const { pageName, sliderSettings } = AppStore.getState();
+    let selectedPage = pageName ? PAGE_LINKS[pageName] : PAGE_LINKS.events;
+    selectedPage.classList.add('selected');
+    const videoPageToggle = document.getElementById('video-page-toggle');
+    videoPageToggle.checked = pageName === 'videos';
 
-        const resetSelectedVideo = () => {
-            selectedVideo.muted = true;
-            selectedVideo = null;
-            selectedVideoContainer.classList.remove('video-checked');
-            selectedVideoContainer = null;
-            videoControls.classList.remove('show');
-        };
+    const resetSelectedVideo = () => {
+        selectedVideo.muted = true;
+        selectedVideo = null;
+        selectedVideoContainer.classList.remove('video-checked');
+        selectedVideoContainer = null;
+        videoControls.classList.remove('show');
+    };
 
-        AppStore.bind('change', () => {
-            console.log('Page is changed');
-        });
+    AppStore.bind('pageChanged', () => {
+        console.log('Page is changed');
+    });
 
-        Object.keys(PAGE_LINKS).forEach(key => {
-            PAGE_LINKS[key].addEventListener('click', () => {
-                AppDispatcher.dispatch({
-                    eventName: 'pageRedirect',
-                    pageName: key
-                });
-                AppStore.trigger('change');
-                videoPageToggle.checked = key === 'videos';
-                selectedPage.classList.remove('selected');
-                selectedPage = PAGE_LINKS[key];
-                PAGE_LINKS[key].classList.add('selected');
-                if (key === 'events' && selectedVideoContainer) {
-                    resetSelectedVideo();
-                }
+    Object.keys(PAGE_LINKS).forEach(key => {
+        PAGE_LINKS[key].addEventListener('click', () => {
+            AppDispatcher.dispatch({
+                eventName: 'PAGE_REDIRECT',
+                pageName: key
             });
-        });
-
-        const fullScreenToggle = document.getElementById('full-screen-toggle');
-        const backButton = document.getElementById('back');
-        backButton.addEventListener('click', () => {
-            fullScreenToggle.checked = false;
-            backButton.style.display = 'none';
-            resetSelectedVideo();
-        });
-
-
-        const brightnessSlider = document.querySelector('.slider.brightness');
-        const contrastSlider = document.querySelector('.slider.contrast');
-
-        const getVideoProperties = styleFilter => {
-            const filterValues = styleFilter.split(/[\s()]+/);
-            filterValues.pop();
-            const videoProperties = {};
-            for (let i = 0; i < filterValues.length; i += 2) {
-                videoProperties[filterValues[i]] = filterValues[i + 1];
+            AppStore.trigger('pageChanged');
+            videoPageToggle.checked = key === 'videos';
+            selectedPage.classList.remove('selected');
+            selectedPage = PAGE_LINKS[key];
+            PAGE_LINKS[key].classList.add('selected');
+            if (key === 'events' && selectedVideoContainer) {
+                resetSelectedVideo();
             }
-            return videoProperties;
-        };
-
-        const setRangeInputs = styleFilter => {
-            if (!styleFilter) {
-                brightnessSlider.value = 1;
-                contrastSlider.value = 1;
-            } else {
-                const videoProperties = getVideoProperties(styleFilter);
-                brightnessSlider.value = videoProperties.brightness;
-                contrastSlider.value = videoProperties.contrast;
-            }
-        };
-
-        const videoContainers = document.getElementsByClassName('video-container');
-        const videoControls = document.getElementsByClassName('video-controls')[0];
-        [].forEach.call(videoContainers, videoContainer => {
-            videoContainer.addEventListener('click', event => {
-                event.stopPropagation();
-                if (selectedVideoContainer) {
-                    return;
-                }
-                fullScreenToggle.checked = true;
-                videoContainer.classList.add('video-checked');
-                selectedVideo = document.querySelector('.video-checked video');
-                selectedVideoContainer = videoContainer;
-                selectedVideo.muted = false;
-                videoControls.classList.add('show');
-                backButton.style.display = 'block';
-                setRangeInputs(videoContainer.style.filter);
-            });
-        });
-
-        brightnessSlider.addEventListener('change', () => {
-            const checkedVideo = document.querySelector('.video-checked');
-            const videoProperties = getVideoProperties(checkedVideo.style.filter);
-            checkedVideo.style.filter = 'brightness(' + event.target.value +')' +
-                (videoProperties.contrast ? ('contrast(' + videoProperties.contrast + ')') : '');
-        });
-
-        contrastSlider.addEventListener('change', () => {
-            const checkedVideo = document.querySelector('.video-checked');
-            const videoProperties = getVideoProperties(checkedVideo.style.filter);
-            checkedVideo.style.filter = 'contrast(' + event.target.value +')' +
-                (videoProperties.brightness ? ('brightness(' + videoProperties.brightness + ')') : '');
         });
     });
+
+    const fullScreenToggle = document.getElementById('full-screen-toggle');
+    const backButton = document.getElementById('back');
+    backButton.addEventListener('click', () => {
+        fullScreenToggle.checked = false;
+        backButton.style.display = 'none';
+        resetSelectedVideo();
+    });
+
+
+    const brightnessSlider = document.querySelector('.slider.brightness');
+    const contrastSlider = document.querySelector('.slider.contrast');
+
+    const getVideoProperties = styleFilter => {
+        const filterValues = styleFilter.split(/[\s()]+/);
+        filterValues.pop();
+        const videoProperties = {};
+        for (let i = 0; i < filterValues.length; i += 2) {
+            videoProperties[filterValues[i]] = filterValues[i + 1];
+        }
+        return videoProperties;
+    };
+
+    const setRangeInputs = styleFilter => {
+        if (!styleFilter) {
+            brightnessSlider.value = 1;
+            contrastSlider.value = 1;
+        } else {
+            const videoProperties = getVideoProperties(styleFilter);
+            brightnessSlider.value = videoProperties.brightness;
+            contrastSlider.value = videoProperties.contrast;
+        }
+    };
+
+    const videoContainers = document.getElementsByClassName('video-container');
+    const videoControls = document.getElementsByClassName('video-controls')[0];
+    [].forEach.call(videoContainers, videoContainer => {
+        videoContainer.style.filter = sliderSettings[videoContainer.id];
+        videoContainer.addEventListener('click', event => {
+            event.stopPropagation();
+            if (selectedVideoContainer) {
+                return;
+            }
+            fullScreenToggle.checked = true;
+            videoContainer.classList.add('video-checked');
+            selectedVideo = document.querySelector('.video-checked video');
+            selectedVideoContainer = videoContainer;
+            selectedVideo.muted = false;
+            videoControls.classList.add('show');
+            backButton.style.display = 'block';
+            setRangeInputs(videoContainer.style.filter);
+        });
+    });
+
+    AppStore.bind('sliderSettingsChanged', () => {
+        console.log('Slider settings are changed');
+    });
+
+    const onSliderChange = event => {
+        const checkedVideo = document.querySelector('.video-checked');
+        const videoProperties = getVideoProperties(checkedVideo.style.filter);
+        const slider = event.target;
+        const sliderName = slider.name;
+        let sliderSettings;
+        const secondProperty = Object.keys(videoProperties).filter(key => key !== sliderName)[0];
+        checkedVideo.style.filter = sliderSettings = sliderName + '(' + slider.value +')' +
+            (videoProperties[secondProperty] ? (' ' + secondProperty + '(' + videoProperties[secondProperty] + ')') : '');
+
+        AppDispatcher.dispatch({
+            eventName: 'SLIDER_SETTINGS',
+            [checkedVideo.id]: sliderSettings
+        });
+        AppStore.trigger('sliderSettingsChanged');
+    };
+
+    brightnessSlider.addEventListener('change', onSliderChange);
+    contrastSlider.addEventListener('change', onSliderChange);
 };
 
 start();
