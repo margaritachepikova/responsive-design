@@ -1,89 +1,6 @@
-import Dispatcher from './lib/Dispatcher.js';
-import  { AppStore } from './AppStore.js';
-import { ActionsList } from './ActionsList.js';
-
-const loadJSON = (file, callback) => {
-    return new Promise((resolve, reject) => {
-        const request = new XMLHttpRequest();
-        request.open('GET', '/api/events', true);
-        request.onreadystatechange = () => {
-            if (request.readyState !== 4) {
-                return;
-            }
-            if (request.status >= 200 && request.status < 300) {
-                resolve(request.response);
-            } else {
-                reject({
-                    status: request.status,
-                    statusText: request.statusText
-                });
-            }
-        };
-        request.send();
-    });
-};
-
-const getDataValue = (data, type) => {
-    let value;
-    if (data) {
-        if (data.type === 'graph') {
-            value = '<img src="assets/Richdata@1,5x.svg" class="image">';
-        } else if (data.image) {
-            value = '<img src="assets/RichdataGraphAlternative.png" class="image">';
-        } else if (data.buttons) {
-            value = '<div class="action-buttons">';
-            data.buttons.forEach(button => {
-                value += '<button type="button">' + button +'</button>';
-            });
-            value += '</div>';
-        } else if (type === 'thermal') {
-            const THERMAL_PROPERTITES = { temperature: 'Температура', humidity: 'Влажность'};
-            value = '<div class="text">';
-            for (let key in data) {
-                value += '<div>' + THERMAL_PROPERTITES[key] + ': <span>' + data[key] + '</span></div>';
-            }
-            value += '</div>';
-        } else {
-            value = '<div class="music-data">' +
-                        '<img src="assets/album-cover.png">' +
-                        '<div class="player">' +
-                            '<span>' + data.artist + ' - ' + data.track.name + '</span>' +
-                            '<div class="slider-container">' +
-                                '<input type="range" min="1" max="100" value="20" class="slider" />' +
-                                '<div>' + data.track.length + '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>' +
-                    '<div class="player-controls volume">' +
-                    '<div>' +
-                        '<button class="prev"></button>' +
-                        '<button class="next"></button>' +
-                    '</div>' +
-                        '<input type="range" min="1" max="100" value="' + data.volume +'" class="slider" />' +
-                        '<div>' + data.volume + '% </div>' +
-                    '</div>';
-        }
-    }
-    return value;
-};
-
-const PROPERTIES = ['type', 'title', 'source', 'time', 'description', 'icon', 'data', 'size'];
-const replaceWithData = (dataObject, templateHtml) => {
-    let htmlSnippet, regex, value;
-    PROPERTIES.forEach(property => {
-        regex = new RegExp('{{' + property + '}}', 'ig');
-        if (property === 'icon' && dataObject.type === 'critical') {
-            value = dataObject[property] + '-white';
-        } else if (property === 'data') {
-            value = getDataValue(dataObject[property], dataObject.icon);
-        } else {
-            value = dataObject[property];
-        }
-        htmlSnippet = (htmlSnippet || templateHtml).replace(regex, value || '');
-        value = null;
-    });
-    return htmlSnippet;
-};
+import { AppStore, ActionsList, PAGE_REDIRECT, SLIDER_SETTINGS } from './appStore.js';
+import { loadJSON } from './api.js';
+import { addEventsOnPage } from './eventPanels.js';
 
 let selectedVideo = null;
 let selectedVideoContainer = null;
@@ -143,15 +60,8 @@ const initVideo = (video, url) => {
 var start = async () => {
     const response = await loadJSON('./events.json');
     const dataObjects = JSON.parse(response).events;
-    const template = document.getElementsByTagName('template')[0];
-    const templateHtml = template.innerHTML;
-    let listHtml = '';
 
-    for (let i = 0; i < dataObjects.length; i++) {
-        listHtml += replaceWithData(dataObjects[i], templateHtml);
-    }
-
-    document.getElementsByClassName('layout-area')[0].innerHTML += listHtml;
+    addEventsOnPage(dataObjects);
 
     initVideo(
         videos[0], 'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
@@ -171,10 +81,10 @@ var start = async () => {
 
     onVideoPageLoad();
 
-    const AppDispatcher = new Dispatcher();
+    const AppDispatcher = new flux.Dispatcher();
 
-    AppDispatcher.register(payload => {
-        ActionsList[payload.eventName](payload);
+    AppDispatcher.register(({ actionType, ...payload }) => {
+        ActionsList[actionType](payload);
     });
 
     const PAGE_LINKS = {
@@ -196,17 +106,17 @@ var start = async () => {
         videoControls.classList.remove('show');
     };
 
-    AppStore.bind('pageChanged', () => {
+    AppStore.bind(PAGE_REDIRECT, () => {
         console.log('Page is changed');
     });
 
     Object.keys(PAGE_LINKS).forEach(key => {
         PAGE_LINKS[key].addEventListener('click', () => {
             AppDispatcher.dispatch({
-                eventName: 'PAGE_REDIRECT',
+                actionType: PAGE_REDIRECT,
                 pageName: key
             });
-            AppStore.trigger('pageChanged');
+            AppStore.trigger(PAGE_REDIRECT);
             videoPageToggle.checked = key === 'videos';
             selectedPage.classList.remove('selected');
             selectedPage = PAGE_LINKS[key];
@@ -270,11 +180,11 @@ var start = async () => {
         });
     });
 
-    AppStore.bind('sliderSettingsChanged', () => {
+    AppStore.bind(SLIDER_SETTINGS, () => {
         console.log('Slider settings are changed');
     });
 
-    const onSliderChange = event => {
+    const onSliderValueChange = event => {
         const checkedVideo = document.querySelector('.video-checked');
         const videoProperties = getVideoProperties(checkedVideo.style.filter);
         const slider = event.target;
@@ -285,14 +195,14 @@ var start = async () => {
             (videoProperties[secondProperty] ? (' ' + secondProperty + '(' + videoProperties[secondProperty] + ')') : '');
 
         AppDispatcher.dispatch({
-            eventName: 'SLIDER_SETTINGS',
+            actionType: SLIDER_SETTINGS,
             [checkedVideo.id]: sliderSettings
         });
-        AppStore.trigger('sliderSettingsChanged');
+        AppStore.trigger(SLIDER_SETTINGS);
     };
 
-    brightnessSlider.addEventListener('change', onSliderChange);
-    contrastSlider.addEventListener('change', onSliderChange);
+    brightnessSlider.addEventListener('change', onSliderValueChange);
+    contrastSlider.addEventListener('change', onSliderValueChange);
 };
 
 start();
