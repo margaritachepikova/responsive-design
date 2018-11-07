@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
     <link rel="stylesheet" href="index.css" />
+    <script defer type="module" src="bower_components/flux-realization/index.js"></script>
+    <script defer type="module" src="index.js"></script>
     <title>Yandex Home</title>
 </head>
 <body>
@@ -15,7 +17,7 @@
         <input class="menu-button" type="checkbox" id="menu-button"/>
         <label class="menu-icon" for="menu-button"></label>
         <ul class="menu-nav">
-            <li><a href="#" id="events-page-link" class="menu-nav-item selected">События</a></li>
+            <li><a href="#" id="events-page-link" class="menu-nav-item">События</a></li>
             <li><a href="#" class="menu-nav-item">Сводка</a></li>
             <li><a href="#" class="menu-nav-item">Устройства</a></li>
             <li><a href="#" class="menu-nav-item">Сценарии</a></li>
@@ -47,11 +49,11 @@
             <div class="video-controls">
                 <div class="slider-container">
                     <div>Brightness</div>
-                    <input type="range" min="0.5" max="1.5" value="1" step="0.1" class="slider brightness" />
+                    <input type="range" name="brightness" min="0.5" max="1.5" value="1" step="0.1" class="slider brightness" />
                 </div>
                 <div class="slider-container">
                     <div>Contrast</div>
-                    <input type="range" min="0.5" max="1.5" value="1" step="0.1" class="slider contrast" />
+                    <input type="range" name="contrast" min="0.5" max="1.5" value="1" step="0.1" class="slider contrast" />
                 </div>
                 <div class="music-meter-container">
                     <div class="music-meter-title">Volume meter</div>
@@ -95,6 +97,5 @@
         </div>
     </template>
 </div>
-<script src="index.js"></script>
 </body>
 </html>

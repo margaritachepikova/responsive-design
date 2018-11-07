@@ -5,6 +5,7 @@
         "start": "node index.js"
     },
     "dependencies": {
+        "bower": "^1.8.4",
         "express": "4.16.4",
         "hbs": "^4.0.1"
     },

@@ -1,0 +1,7 @@
+{
+    "name": "responsive-design",
+    "version": "0.0.0",
+    "dependencies": {
+        "flux-realization": "^1.0.0"
+    }
+}
