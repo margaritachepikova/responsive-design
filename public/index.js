@@ -1,4 +1,4 @@
-import { AppStore, ActionsList, PAGE_REDIRECT, SLIDER_SETTINGS } from './appStore.js';
+import { setPage, setSliders } from './appStore.js';
 import { loadJSON } from './api.js';
 import { addEventsOnPage } from './eventPanels.js';
 
@@ -81,18 +81,19 @@ var start = async () => {
 
     onVideoPageLoad();
 
-    const AppDispatcher = new flux.Dispatcher();
-
-    AppDispatcher.register(({ actionType, ...payload }) => {
-        ActionsList[actionType](payload);
-    });
-
     const PAGE_LINKS = {
         events: document.getElementById('events-page-link'),
         videos: document.getElementById('video-page-link')
     };
 
-    const { pageName, sliderSettings } = AppStore.getState();
+    let { pageName, sliderSettings } = flux.getState();
+
+    flux.addListener('changed', currentState => {
+        pageName = currentState.pageName;
+        sliderSettings = currentState.sliderSettings;
+        console.log('state is changed')
+    });
+
     let selectedPage = pageName ? PAGE_LINKS[pageName] : PAGE_LINKS.events;
     selectedPage.classList.add('selected');
     const videoPageToggle = document.getElementById('video-page-toggle');
@@ -106,17 +107,9 @@ var start = async () => {
         videoControls.classList.remove('show');
     };
 
-    AppStore.bind(PAGE_REDIRECT, () => {
-        console.log('Page is changed');
-    });
-
     Object.keys(PAGE_LINKS).forEach(key => {
         PAGE_LINKS[key].addEventListener('click', () => {
-            AppDispatcher.dispatch({
-                actionType: PAGE_REDIRECT,
-                pageName: key
-            });
-            AppStore.trigger(PAGE_REDIRECT);
+            setPage(key);
             videoPageToggle.checked = key === 'videos';
             selectedPage.classList.remove('selected');
             selectedPage = PAGE_LINKS[key];
@@ -180,10 +173,6 @@ var start = async () => {
         });
     });
 
-    AppStore.bind(SLIDER_SETTINGS, () => {
-        console.log('Slider settings are changed');
-    });
-
     const onSliderValueChange = event => {
         const checkedVideo = document.querySelector('.video-checked');
         const videoProperties = getVideoProperties(checkedVideo.style.filter);
@@ -194,11 +183,7 @@ var start = async () => {
         checkedVideo.style.filter = sliderSettings = sliderName + '(' + slider.value +')' +
             (videoProperties[secondProperty] ? (' ' + secondProperty + '(' + videoProperties[secondProperty] + ')') : '');
 
-        AppDispatcher.dispatch({
-            actionType: SLIDER_SETTINGS,
-            [checkedVideo.id]: sliderSettings
-        });
-        AppStore.trigger(SLIDER_SETTINGS);
+        setSliders({[checkedVideo.id]: sliderSettings});
     };
 
     brightnessSlider.addEventListener('change', onSliderValueChange);

@@ -1,16 +1,20 @@
-export const AppStore = new flux.Store();
+const SET_PAGE = 'SET_PAGE';
+const SET_SLIDERS = 'SET_SLIDERS';
 
-export const PAGE_REDIRECT = 'PAGE_REDIRECT';
-export const SLIDER_SETTINGS = 'SLIDER_SETTINGS';
+export const setPage = flux.createAction(SET_PAGE);
+export const setSliders = flux.createAction(SET_SLIDERS);
 
-let state = AppStore.getState();
-
-const setState = newSettings => {
-    state = AppStore.getState();
-    AppStore.setState({ ...state, ...newSettings });
+const actionHandlers = {
+    [SET_PAGE]: (state, payload) => ({
+        ...state, pageName: payload
+    }),
+    [SET_SLIDERS]: (state, payload) => ({
+        ...state,
+        sliderSettings: {
+            ...(state.sliderSettings),
+            ...payload
+        }
+    })
 };
 
-export const ActionsList = {
-    [PAGE_REDIRECT]: payload => setState(payload),
-    [SLIDER_SETTINGS]: payload => setState({ sliderSettings: { ...(state.sliderSettings), ...payload }})
-};
+flux.addActions(actionHandlers);
